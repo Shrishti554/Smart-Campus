@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Applications — SmartCampus Placement</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sidebar-w: 250px;
+      --bg: #f0f4f8;
+      --card-bg: #fff;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+    }
+    .sidebar {
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--card-bg);
+      position: fixed;
+      left: 0;
+      top: 0;
+      box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+      padding-top: 1.25rem;
+    }
+    .sidebar .logo {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      padding: 0 1rem;
+    }
+    .sidebar .logo h2 { margin: 0; font-size: 1.35rem; color: var(--text); }
+    .sidebar .logo h2 span { color: var(--accent); }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar ul li {
+      padding: 0.75rem 1.25rem;
+      margin: 0 0.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .sidebar ul li:hover, .sidebar ul li.active {
+      background: var(--accent);
+      color: white;
+    }
+    .sidebar ul li a {
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .main {
+      margin-left: var(--sidebar-w);
+      padding: 2rem;
+    }
+    .header {
+      background: var(--card-bg);
+      padding: 1.5rem 2rem;
+      border-radius: 1rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 { margin: 0; font-size: 1.75rem; }
+    .header .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      text-align: center;
+    }
+    .stat-card h3 { margin: 0 0 0.5rem 0; font-size: 2rem; }
+    .stat-card p { margin: 0; color: var(--text-muted); }
+    .applications-table {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      overflow: hidden;
+    }
+    .table-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .table-header h2 { margin: 0; font-size: 1.25rem; }
+    .filter-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover {
+      background: var(--bg);
+    }
+    .filter-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      background: #f8fafc;
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    tr:hover {
+      background: #f8fafc;
+    }
+    .job-title {
+      font-weight: 600;
+      color: var(--text);
+    }
+    .company-name {
+      color: var(--accent);
+      font-size: 0.9rem;
+    }
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      display: inline-block;
+    }
+    .status-applied { background: #dbeafe; color: #1e40af; }
+    .status-shortlisted { background: #fef3c7; color: #92400e; }
+    .status-interview { background: #e9d5ff; color: #6b21a8; }
+    .status-selected { background: #d1fae5; color: #065f46; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
+    .status-withdrawn { background: #f3f4f6; color: #6b7280; }
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.75rem;
+      border: none;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .btn-view {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-view:hover {
+      background: var(--accent-hover);
+    }
+    .interview-details {
+      margin-top: 0.5rem;
+      padding: 0.75rem;
+      background: #f0f9ff;
+      border-radius: 0.5rem;
+      font-size: 0.85rem;
+    }
+    .interview-details h5 {
+      margin: 0 0 0.5rem 0;
+      color: var(--accent);
+    }
+    .interview-details p {
+      margin: 0.25rem 0;
+      color: var(--text-muted);
+    }
+    .no-applications {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+    }
+    .no-applications i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    .admin-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .status-select {
+      padding: 0.25rem 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 0.25rem;
+      font-size: 0.8rem;
+    }
+    .notes-input {
+      width: 100px;
+      padding: 0.25rem 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 0.25rem;
+      font-size: 0.8rem;
+    }
+    @media (max-width: 768px) {
+      .main {
+        margin-left: 0;
+        padding: 1rem;
+      }
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .applications-table {
+        overflow-x: auto;
+      }
+      table {
+        min-width: 600px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo">
+      <h2>Smart<span>Campus</span></h2>
+    </div>
+    <ul>
+      <li><a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+      <li class="active"><a href="/placement/dashboard"><i class="fas fa-briefcase"></i> Placement</a></li>
+      <li><a href="/placement/jobs"><i class="fas fa-search"></i> Browse Jobs</a></li>
+      <li><a href="/placement/applications"><i class="fas fa-file-alt"></i> My Applications</a></li>
+      <li><a href="/placement/resume"><i class="fas fa-file-pdf"></i> Resume</a></li>
+      <li><a href="/library"><i class="fas fa-book"></i> Library</a></li>
+      <li><a href="/attendance"><i class="fas fa-calendar-check"></i> Attendance</a></li>
+      <li><a href="/sschedule"><i class="fas fa-clock"></i> Schedule</a></li>
+      <li><a href="/sevents"><i class="fas fa-calendar"></i> Events</a></li>
+      <li><a href="/contact"><i class="fas fa-envelope"></i> Contact</a></li>
+      <li><a href="/profile"><i class="fas fa-user"></i> Profile</a></li>
+      <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <div class="header">
+      <h1><%= user.role === 'student' ? 'My Applications' : 'All Applications' %></h1>
+      <div class="user-info">
+        <span>Welcome, <%= user.fullName || user.email %></span>
+        <i class="fas fa-user-circle fa-2x"></i>
+      </div>
+    </div>
+
+    <% if (user.role === 'student') { %>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3><%= applications.length %></h3>
+          <p>Total Applications</p>
+        </div>
+        <div class="stat-card">
+          <h3><%= applications.filter(a => a.status === 'Shortlisted').length %></h3>
+          <p>Shortlisted</p>
+        </div>
+        <div class="stat-card">
+          <h3><%= applications.filter(a => a.status === 'Interview Scheduled').length %></h3>
+          <p>Interviews</p>
+        </div>
+        <div class="stat-card">
+          <h3><%= applications.filter(a => a.status === 'Selected').length %></h3>
+          <p>Selected</p>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="applications-table">
+      <div class="table-header">
+        <h2><%= applications.length %> Application<%= applications.length !== 1 ? 's' : '' %></h2>
+        <% if (user.role === 'student') { %>
+          <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterApplications('all')">All</button>
+            <button class="filter-btn" onclick="filterApplications('applied')">Applied</button>
+            <button class="filter-btn" onclick="filterApplications('shortlisted')">Shortlisted</button>
+            <button class="filter-btn" onclick="filterApplications('interview')">Interview</button>
+            <button class="filter-btn" onclick="filterApplications('selected')">Selected</button>
+          </div>
+        <% } %>
+      </div>
+
+      <% if (applications.length === 0) { %>
+        <div class="no-applications">
+          <i class="fas fa-file-alt"></i>
+          <h3>No applications found</h3>
+          <p><% if (user.role === 'student') { %>Start applying for jobs to see your applications here.<% } else { %>No applications have been submitted yet.<% } %></p>
+          <% if (user.role === 'student') { %>
+            <a href="/placement/jobs" class="btn btn-primary" style="margin-top: 1rem;">
+              <i class="fas fa-search"></i> Browse Jobs
+            </a>
+          <% } %>
+        </div>
+      <% } else { %>
+        <table>
+          <thead>
+            <tr>
+              <% if (user.role === 'admin' || user.role === 'placement') { %>
+                <th>Student</th>
+              <% } %>
+              <th>Job</th>
+              <th>Company</th>
+              <th>Applied Date</th>
+              <th>Status</th>
+              <% if (user.role === 'admin' || user.role === 'placement') { %>
+                <th>Actions</th>
+              <% } %>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% applications.forEach(application => { %>
+              <tr class="application-row" data-status="<%= application.status.toLowerCase().replace(' ', '-') %>">
+                <% if (user.role === 'admin' || user.role === 'placement') { %>
+                  <td>
+                    <div class="job-title"><%= application.student.fullName || application.student.email %></div>
+                    <div class="company-name"><%= application.student.studentDetails.branch || 'N/A' %></div>
+                  </td>
+                <% } %>
+                <td>
+                  <div class="job-title"><%= application.job.title %></div>
+                  <div class="company-name"><%= application.job.location %> • <%= application.job.jobType %></div>
+                </td>
+                <td>
+                  <div class="job-title"><%= application.company.name %></div>
+                  <div class="company-name">₹<%= application.job.salary.min.toLocaleString() %> - <%= application.job.salary.max ? application.job.salary.max.toLocaleString() : 'N/A' %></div>
+                </td>
+                <td><%= new Date(application.appliedAt).toLocaleDateString() %></td>
+                <td>
+                  <span class="status-badge status-<%= application.status.toLowerCase().replace(' ', '-') %>">
+                    <%= application.status %>
+                  </span>
+                  <% if (application.interviewDetails && application.interviewDetails.date) { %>
+                    <div class="interview-details">
+                      <h5>Interview Details</h5>
+                      <p><i class="fas fa-calendar"></i> <%= new Date(application.interviewDetails.date).toLocaleDateString() %> at <%= application.interviewDetails.time %></p>
+                      <p><i class="fas fa-map-marker-alt"></i> <%= application.interviewDetails.mode %><% if (application.interviewDetails.location) { %> • <%= application.interviewDetails.location %><% } %></p>
+                      <% if (application.interviewDetails.meetingLink) { %>
+                        <p><i class="fas fa-video"></i> <a href="<%= application.interviewDetails.meetingLink %>" target="_blank">Join Interview</a></p>
+                      <% } %>
+                    </div>
+                  <% } %>
+                </td>
+                <% if (user.role === 'admin' || user.role === 'placement') { %>
+                  <td>
+                    <form method="POST" action="/placement/applications/<%= application._id %>/status" class="admin-actions">
+                      <select name="status" class="status-select">
+                        <option value="Applied" <%= application.status === 'Applied' ? 'selected' : '' %>>Applied</option>
+                        <option value="Shortlisted" <%= application.status === 'Shortlisted' ? 'selected' : '' %>>Shortlisted</option>
+                        <option value="Interview Scheduled" <%= application.status === 'Interview Scheduled' ? 'selected' : '' %>>Interview</option>
+                        <option value="Selected" <%= application.status === 'Selected' ? 'selected' : '' %>>Selected</option>
+                        <option value="Rejected" <%= application.status === 'Rejected' ? 'selected' : '' %>>Rejected</option>
+                      </select>
+                      <input type="text" name="notes" placeholder="Notes" class="notes-input">
+                      <button type="submit" class="btn-small btn-view">Update</button>
+                    </form>
+                  </td>
+                <% } %>
+                <td>
+                  <div class="action-buttons">
+                    <a href="/placement/jobs/<%= application.job._id %>" class="btn-small btn-view">
+                      <i class="fas fa-eye"></i> View
+                    </a>
+                    <% if (user.role === 'student' && application.status === 'Applied') { %>
+                      <form method="POST" action="/placement/applications/<%= application._id %>/withdraw" style="display: inline;">
+                        <button type="submit" class="btn-small" style="background: var(--danger); color: white;" onclick="return confirm('Are you sure you want to withdraw this application?')">
+                          <i class="fas fa-times"></i> Withdraw
+                        </button>
+                      </form>
+                    <% } %>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } %>
+    </div>
+  </main>
+
+  <script>
+    function filterApplications(status) {
+      const buttons = document.querySelectorAll('.filter-btn');
+      const rows = document.querySelectorAll('.application-row');
+      
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      rows.forEach(row => {
+        if (status === 'all' || row.dataset.status === status) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

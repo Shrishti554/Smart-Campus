@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= job ? 'Edit' : 'Create' %> Job — SmartCampus Placement</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sidebar-w: 250px;
+      --bg: #f0f4f8;
+      --card-bg: #fff;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+    }
+    .sidebar {
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--card-bg);
+      position: fixed;
+      left: 0;
+      top: 0;
+      box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+      padding-top: 1.25rem;
+    }
+    .sidebar .logo {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      padding: 0 1rem;
+    }
+    .sidebar .logo h2 { margin: 0; font-size: 1.35rem; color: var(--text); }
+    .sidebar .logo h2 span { color: var(--accent); }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar ul li {
+      padding: 0.75rem 1.25rem;
+      margin: 0 0.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .sidebar ul li:hover, .sidebar ul li.active {
+      background: var(--accent);
+      color: white;
+    }
+    .sidebar ul li a {
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .main {
+      margin-left: var(--sidebar-w);
+      padding: 2rem;
+    }
+    .header {
+      background: var(--card-bg);
+      padding: 1.5rem 2rem;
+      border-radius: 1rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 { margin: 0; font-size: 1.75rem; }
+    .header .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .form-container {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      padding: 2rem;
+      max-width: 800px;
+    }
+    .form-section {
+      margin-bottom: 2rem;
+    }
+    .form-section h3 {
+      margin: 0 0 1rem 0;
+      font-size: 1.25rem;
+      color: var(--text);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.5rem;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    .salary-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 0.5rem;
+      align-items: end;
+    }
+    .skills-input {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      min-height: 50px;
+    }
+    .skill-tag {
+      background: #e0e7ff;
+      color: #3730a3;
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .skill-tag .remove {
+      cursor: pointer;
+      color: #6b7280;
+    }
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+    .btn-secondary {
+      background: var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo">
+      <h2>Smart<span>Campus</span></h2>
+    </div>
+    <ul>
+      <li><a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+      <li class="active"><a href="/placement/admin"><i class="fas fa-briefcase"></i> Placement Admin</a></li>
+      <li><a href="/placement/admin/jobs"><i class="fas fa-plus-circle"></i> Manage Jobs</a></li>
+      <li><a href="/placement/admin/companies"><i class="fas fa-building"></i> Companies</a></li>
+      <li><a href="/placement/admin/interviews"><i class="fas fa-calendar-check"></i> Interviews</a></li>
+      <li><a href="/placement/admin/analytics"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+      <li><a href="/placement/applications"><i class="fas fa-file-alt"></i> Applications</a></li>
+      <li><a href="/library"><i class="fas fa-book"></i> Library</a></li>
+      <li><a href="/contact"><i class="fas fa-envelope"></i> Contact</a></li>
+      <li><a href="/profile"><i class="fas fa-user"></i> Profile</a></li>
+      <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <div class="header">
+      <h1><%= job ? 'Edit Job' : 'Create New Job' %></h1>
+      <div class="user-info">
+        <span>Welcome, <%= user.fullName || user.email %></span>
+        <i class="fas fa-user-circle fa-2x"></i>
+      </div>
+    </div>
+
+    <div class="form-container">
+      <form method="POST" action="<%= job ? `/placement/admin/jobs/${job._id}` : '/placement/admin/jobs' %>">
+        <div class="form-section">
+          <h3>Basic Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="title">Job Title *</label>
+              <input type="text" id="title" name="title" value="<%= job ? job.title : '' %>" required>
+            </div>
+            <div class="form-group">
+              <label for="company">Company *</label>
+              <select id="company" name="company" required>
+                <option value="">Select a company</option>
+                <% companies.forEach(company => { %>
+                  <option value="<%= company._id %>" <%= job && job.company._id.toString() === company._id.toString() ? 'selected' : '' %>>
+                    <%= company.name %>
+                  </option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="location">Location *</label>
+              <input type="text" id="location" name="location" value="<%= job ? job.location : '' %>" required>
+            </div>
+            <div class="form-group">
+              <label for="jobType">Job Type *</label>
+              <select id="jobType" name="jobType" required>
+                <option value="">Select job type</option>
+                <option value="Full-time" <%= job && job.jobType === 'Full-time' ? 'selected' : '' %>>Full-time</option>
+                <option value="Part-time" <%= job && job.jobType === 'Part-time' ? 'selected' : '' %>>Part-time</option>
+                <option value="Internship" <%= job && job.jobType === 'Internship' ? 'selected' : '' %>>Internship</option>
+                <option value="Contract" <%= job && job.jobType === 'Contract' ? 'selected' : '' %>>Contract</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="workMode">Work Mode</label>
+              <select id="workMode" name="workMode">
+                <option value="On-site" <%= job && job.workMode === 'On-site' ? 'selected' : '' %>>On-site</option>
+                <option value="Remote" <%= job && job.workMode === 'Remote' ? 'selected' : '' %>>Remote</option>
+                <option value="Hybrid" <%= job && job.workMode === 'Hybrid' ? 'selected' : '' %>>Hybrid</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="positionsAvailable">Positions Available *</label>
+              <input type="number" id="positionsAvailable" name="positionsAvailable" value="<%= job ? job.positionsAvailable : '' %>" min="1" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Job Description</h3>
+          <div class="form-group full-width">
+            <label for="description">Job Description *</label>
+            <textarea id="description" name="description" required><%= job ? job.description : '' %></textarea>
+          </div>
+          <div class="form-group full-width">
+            <label for="requirements">Requirements & Responsibilities *</label>
+            <textarea id="requirements" name="requirements" required><%= job ? job.requirements : '' %></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Salary Package</h3>
+          <div class="form-group full-width">
+            <label>Salary Range (₹ per annum)</label>
+            <div class="salary-inputs">
+              <input type="number" name="salaryMin" placeholder="Minimum" value="<%= job ? job.salary.min : '' %>" required>
+              <input type="number" name="salaryMax" placeholder="Maximum" value="<%= job ? job.salary.max : '' %>">
+              <span style="padding: 0.75rem 0;">INR / year</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Eligibility Criteria</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="minCGPA">Minimum CGPA</label>
+              <input type="number" id="minCGPA" name="minCGPA" step="0.01" min="0" max="10" value="<%= job && job.eligibilityCriteria.minCGPA ? job.eligibilityCriteria.minCGPA : '' %>">
+            </div>
+            <div class="form-group">
+              <label for="maxBacklogs">Maximum Backlogs</label>
+              <input type="number" id="maxBacklogs" name="maxBacklogs" min="0" value="<%= job && job.eligibilityCriteria.maxBacklogs !== undefined ? job.eligibilityCriteria.maxBacklogs : '' %>">
+            </div>
+            <div class="form-group">
+              <label for="passoutYear">Passout Year</label>
+              <input type="number" id="passoutYear" name="passoutYear" min="2020" max="2030" value="<%= job && job.eligibilityCriteria.passoutYear ? job.eligibilityCriteria.passoutYear : '' %>">
+            </div>
+            <div class="form-group">
+              <label>Required Skills</label>
+              <div class="skills-input" id="skillsContainer">
+                <input type="text" placeholder="Type a skill and press Enter" id="skillInput" style="border: none; outline: none; flex: 1; min-width: 100px;">
+              </div>
+              <input type="hidden" name="skillsRequired" id="skillsHidden">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Application Details</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="applicationDeadline">Application Deadline *</label>
+              <input type="datetime-local" id="applicationDeadline" name="applicationDeadline" value="<%= job ? new Date(job.applicationDeadline).toISOString().slice(0, 16) : '' %>" required>
+            </div>
+            <% if (job) { %>
+            <div class="form-group">
+              <label>Active Status</label>
+              <div class="checkbox-group">
+                <input type="checkbox" id="isActive" name="isActive" <%= job.isActive ? 'checked' : '' %>>
+                <label for="isActive">Job is active and visible to students</label>
+              </div>
+            </div>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <a href="/placement/admin/jobs" class="btn btn-secondary">
+            <i class="fas fa-times"></i> Cancel
+          </a>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> <%= job ? 'Update Job' : 'Create Job' %>
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    let skills = [];
+    
+    <% if (job && job.eligibilityCriteria && job.eligibilityCriteria.skillsRequired) { %>
+      skills = <%= JSON.stringify(job.eligibilityCriteria.skillsRequired) %>;
+      skills.forEach(skill => addSkillTag(skill));
+    <% } %>
+
+    document.getElementById('skillInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const skill = this.value.trim();
+        if (skill && !skills.includes(skill)) {
+          skills.push(skill);
+          addSkillTag(skill);
+          this.value = '';
+          updateSkillsHidden();
+        }
+      }
+    });
+
+    function addSkillTag(skill) {
+      const container = document.getElementById('skillsContainer');
+      const tag = document.createElement('span');
+      tag.className = 'skill-tag';
+      tag.innerHTML = `
+        ${skill}
+        <span class="remove" onclick="removeSkill('${skill}')">×</span>
+      `;
+      container.insertBefore(tag, document.getElementById('skillInput'));
+    }
+
+    function removeSkill(skill) {
+      skills = skills.filter(s => s !== skill);
+      updateSkillsHidden();
+      renderSkills();
+    }
+
+    function renderSkills() {
+      const container = document.getElementById('skillsContainer');
+      const input = document.getElementById('skillInput');
+      container.innerHTML = '';
+      skills.forEach(skill => addSkillTag(skill));
+      container.appendChild(input);
+    }
+
+    function updateSkillsHidden() {
+      document.getElementById('skillsHidden').value = skills.join(',');
+    }
+
+    // Set minimum datetime for deadline to current time
+    const now = new Date();
+    const minDateTime = now.toISOString().slice(0, 16);
+    document.getElementById('applicationDeadline').min = minDateTime;
+  </script>
+</body>
+</html>

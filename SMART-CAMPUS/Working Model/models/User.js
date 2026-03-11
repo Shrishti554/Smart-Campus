@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
   },
   role: { 
     type: String, 
-    enum: ['student', 'teacher', 'admin'], 
+    enum: ['student', 'teacher', 'admin', 'company', 'placement'], 
     required: true 
   },
   fullName: { 
@@ -37,6 +37,21 @@ const userSchema = new mongoose.Schema({
   isProfileComplete: { 
     type: Boolean, 
     default: false 
+  },
+  studentDetails: {
+    rollNumber: { type: String, sparse: true },
+    branch: { type: String, sparse: true },
+    year: { type: Number, sparse: true },
+    cgpa: { type: Number, min: 0, max: 10, sparse: true },
+    backlogs: { type: Number, default: 0, sparse: true },
+    passoutYear: { type: Number, sparse: true },
+    skills: [{ type: String }],
+    resumeUploaded: { type: Boolean, default: false }
+  },
+  companyDetails: {
+    companyName: { type: String, sparse: true },
+    companyVerified: { type: Boolean, default: false },
+    companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company', sparse: true }
   }
 }, { timestamps: true });
 

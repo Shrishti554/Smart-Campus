@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= job.title %> — SmartCampus Placement</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sidebar-w: 250px;
+      --bg: #f0f4f8;
+      --card-bg: #fff;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+    }
+    .sidebar {
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--card-bg);
+      position: fixed;
+      left: 0;
+      top: 0;
+      box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+      padding-top: 1.25rem;
+    }
+    .sidebar .logo {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      padding: 0 1rem;
+    }
+    .sidebar .logo h2 { margin: 0; font-size: 1.35rem; color: var(--text); }
+    .sidebar .logo h2 span { color: var(--accent); }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar ul li {
+      padding: 0.75rem 1.25rem;
+      margin: 0 0.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .sidebar ul li:hover, .sidebar ul li.active {
+      background: var(--accent);
+      color: white;
+    }
+    .sidebar ul li a {
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .main {
+      margin-left: var(--sidebar-w);
+      padding: 2rem;
+    }
+    .header {
+      background: var(--card-bg);
+      padding: 1.5rem 2rem;
+      border-radius: 1rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 { margin: 0; font-size: 1.75rem; }
+    .header .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .job-container {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+    .job-main {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      overflow: hidden;
+    }
+    .job-header {
+      padding: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .job-header h2 { margin: 0 0 0.5rem 0; font-size: 1.5rem; }
+    .job-header .company {
+      color: var(--accent);
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+    .job-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    .job-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+    }
+    .job-section {
+      padding: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .job-section:last-child {
+      border-bottom: none;
+    }
+    .job-section h3 {
+      margin: 0 0 1rem 0;
+      font-size: 1.25rem;
+      color: var(--text);
+    }
+    .job-section p, .job-section ul {
+      line-height: 1.6;
+      color: var(--text-muted);
+    }
+    .job-section ul {
+      padding-left: 1.5rem;
+    }
+    .job-section ul li {
+      margin-bottom: 0.5rem;
+    }
+    .job-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .sidebar-card {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      padding: 1.5rem;
+    }
+    .sidebar-card h4 {
+      margin: 0 0 1rem 0;
+      font-size: 1.1rem;
+    }
+    .salary-info {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--success);
+      margin-bottom: 0.5rem;
+    }
+    .deadline-info {
+      color: var(--danger);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .eligibility-list {
+      list-style: none;
+      padding: 0;
+    }
+    .eligibility-list li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+    }
+    .eligibility-list li:last-child {
+      border-bottom: none;
+    }
+    .eligibility-list .label {
+      font-weight: 500;
+      color: var(--text);
+    }
+    .eligibility-list .value {
+      color: var(--text-muted);
+    }
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      font-size: 1rem;
+      width: 100%;
+      justify-content: center;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+    .btn-applied {
+      background: var(--success);
+      color: white;
+    }
+    .btn-disabled {
+      background: var(--border);
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+    .skills-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .skill-tag {
+      background: #e0e7ff;
+      color: #3730a3;
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    @media (max-width: 1024px) {
+      .job-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo">
+      <h2>Smart<span>Campus</span></h2>
+    </div>
+    <ul>
+      <li><a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+      <li class="active"><a href="/placement/dashboard"><i class="fas fa-briefcase"></i> Placement</a></li>
+      <li><a href="/placement/jobs"><i class="fas fa-search"></i> Browse Jobs</a></li>
+      <li><a href="/placement/applications"><i class="fas fa-file-alt"></i> My Applications</a></li>
+      <li><a href="/placement/resume"><i class="fas fa-file-pdf"></i> Resume</a></li>
+      <li><a href="/library"><i class="fas fa-book"></i> Library</a></li>
+      <li><a href="/attendance"><i class="fas fa-calendar-check"></i> Attendance</a></li>
+      <li><a href="/sschedule"><i class="fas fa-clock"></i> Schedule</a></li>
+      <li><a href="/sevents"><i class="fas fa-calendar"></i> Events</a></li>
+      <li><a href="/contact"><i class="fas fa-envelope"></i> Contact</a></li>
+      <li><a href="/profile"><i class="fas fa-user"></i> Profile</a></li>
+      <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <div class="header">
+      <h1>Job Details</h1>
+      <div class="user-info">
+        <span>Welcome, <%= user.fullName || user.email %></span>
+        <i class="fas fa-user-circle fa-2x"></i>
+      </div>
+    </div>
+
+    <div class="job-container">
+      <div class="job-main">
+        <div class="job-header">
+          <h2><%= job.title %></h2>
+          <div class="company"><%= job.company.name %></div>
+          <div class="job-meta">
+            <div class="job-meta-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <%= job.location %>
+            </div>
+            <div class="job-meta-item">
+              <i class="fas fa-briefcase"></i>
+              <%= job.jobType %>
+            </div>
+            <div class="job-meta-item">
+              <i class="fas fa-laptop"></i>
+              <%= job.workMode %>
+            </div>
+            <div class="job-meta-item">
+              <i class="fas fa-users"></i>
+              <%= job.positionsAvailable %> positions
+            </div>
+          </div>
+        </div>
+
+        <div class="job-section">
+          <h3>Job Description</h3>
+          <p><%= job.description %></p>
+        </div>
+
+        <div class="job-section">
+          <h3>Requirements & Responsibilities</h3>
+          <div><%= job.requirements %></div>
+        </div>
+
+        <% if (job.eligibilityCriteria && job.eligibilityCriteria.skillsRequired && job.eligibilityCriteria.skillsRequired.length > 0) { %>
+        <div class="job-section">
+          <h3>Required Skills</h3>
+          <div class="skills-tags">
+            <% job.eligibilityCriteria.skillsRequired.forEach(skill => { %>
+              <span class="skill-tag"><%= skill %></span>
+            <% }) %>
+          </div>
+        </div>
+        <% } %>
+
+        <div class="job-section">
+          <h3>About Company</h3>
+          <p><%= job.company.description %></p>
+          <% if (job.company.website) { %>
+            <p style="margin-top: 1rem;">
+              <a href="<%= job.company.website %>" target="_blank" style="color: var(--accent);">
+                <i class="fas fa-external-link-alt"></i> Visit Website
+              </a>
+            </p>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="job-sidebar">
+        <div class="sidebar-card">
+          <h4>Salary Package</h4>
+          <div class="salary-info">
+            ₹<%= job.salary.min.toLocaleString() %> - <%= job.salary.max ? job.salary.max.toLocaleString() : 'N/A' %>
+          </div>
+          <div style="color: var(--text-muted); font-size: 0.9rem;">
+            <%= job.salary.type %> • <%= job.salary.currency %>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <h4>Application Deadline</h4>
+          <div class="deadline-info">
+            <i class="fas fa-clock"></i>
+            <%= new Date(job.applicationDeadline).toLocaleDateString() %>
+          </div>
+        </div>
+
+        <% if (job.eligibilityCriteria) { %>
+        <div class="sidebar-card">
+          <h4>Eligibility Criteria</h4>
+          <ul class="eligibility-list">
+            <% if (job.eligibilityCriteria.minCGPA) { %>
+              <li>
+                <span class="label">Min CGPA</span>
+                <span class="value"><%= job.eligibilityCriteria.minCGPA %></span>
+              </li>
+            <% } %>
+            <% if (job.eligibilityCriteria.maxBacklogs !== undefined) { %>
+              <li>
+                <span class="label">Max Backlogs</span>
+                <span class="value"><%= job.eligibilityCriteria.maxBacklogs %></span>
+              </li>
+            <% } %>
+            <% if (job.eligibilityCriteria.branches && job.eligibilityCriteria.branches.length > 0) { %>
+              <li>
+                <span class="label">Branches</span>
+                <span class="value"><%= job.eligibilityCriteria.branches.join(', ') %></span>
+              </li>
+            <% } %>
+            <% if (job.eligibilityCriteria.passoutYear) { %>
+              <li>
+                <span class="label">Passout Year</span>
+                <span class="value"><%= job.eligibilityCriteria.passoutYear %></span>
+              </li>
+            <% } %>
+          </ul>
+        </div>
+        <% } %>
+
+        <div class="sidebar-card">
+          <% if (user.role === 'student') { %>
+            <% if (hasApplied) { %>
+              <button class="btn btn-applied" disabled>
+                <i class="fas fa-check"></i> Already Applied
+              </button>
+            <% } else if (new Date() > new Date(job.applicationDeadline)) { %>
+              <button class="btn btn-disabled" disabled>
+                <i class="fas fa-clock"></i> Application Closed
+              </button>
+            <% } else { %>
+              <form method="POST" action="/placement/jobs/<%= job._id %>/apply">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-paper-plane"></i> Apply Now
+                </button>
+              </form>
+            <% } %>
+          <% } else if (user.role === 'admin' || user.role === 'placement') { %>
+            <a href="/placement/admin/jobs/<%= job._id %>/edit" class="btn btn-primary">
+              <i class="fas fa-edit"></i> Edit Job
+            </a>
+          <% } %>
+          
+          <a href="/placement/jobs" class="btn btn-secondary" style="margin-top: 1rem;">
+            <i class="fas fa-arrow-left"></i> Back to Jobs
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

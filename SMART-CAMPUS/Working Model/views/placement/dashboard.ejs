@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Placement Dashboard — SmartCampus</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/chatbot.css">
+  <style>
+    :root {
+      --sidebar-w: 250px;
+      --bg: #f0f4f8;
+      --card-bg: #fff;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+    }
+    .sidebar {
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--card-bg);
+      position: fixed;
+      left: 0;
+      top: 0;
+      box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+      padding-top: 1.25rem;
+    }
+    .sidebar .logo {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      padding: 0 1rem;
+    }
+    .sidebar .logo h2 { margin: 0; font-size: 1.35rem; color: var(--text); }
+    .sidebar .logo h2 span { color: var(--accent); }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar ul li {
+      padding: 0.75rem 1.25rem;
+      margin: 0 0.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .sidebar ul li:hover, .sidebar ul li.active {
+      background: var(--accent);
+      color: white;
+    }
+    .sidebar ul li a {
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .main {
+      margin-left: var(--sidebar-w);
+      padding: 2rem;
+    }
+    .header {
+      background: var(--card-bg);
+      padding: 1.5rem 2rem;
+      border-radius: 1rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 { margin: 0; font-size: 1.75rem; }
+    .header .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border-left: 4px solid var(--accent);
+    }
+    .stat-card h3 { margin: 0 0 0.5rem 0; font-size: 2rem; color: var(--accent); }
+    .stat-card p { margin: 0; color: var(--text-muted); }
+    .card {
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      margin-bottom: 1.5rem;
+    }
+    .card h2 { margin: 0 0 1rem 0; font-size: 1.25rem; }
+    .job-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .job-item {
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .job-item h4 { margin: 0 0 0.25rem 0; }
+    .job-item p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+    .btn-warning {
+      background: var(--warning);
+      color: white;
+    }
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    .status-applied { background: #dbeafe; color: #1e40af; }
+    .status-shortlisted { background: #fef3c7; color: #92400e; }
+    .status-interview { background: #e9d5ff; color: #6b21a8; }
+    .status-selected { background: #d1fae5; color: #065f46; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
+    .notification-item {
+      padding: 0.75rem;
+      border-left: 3px solid var(--accent);
+      background: #f8fafc;
+      margin-bottom: 0.5rem;
+      border-radius: 0.25rem;
+    }
+    .notification-item h5 { margin: 0 0 0.25rem 0; font-size: 0.9rem; }
+    .notification-item p { margin: 0; color: var(--text-muted); font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo">
+      <h2>Smart<span>Campus</span></h2>
+    </div>
+    <ul>
+      <li><a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+      <li class="active"><a href="/placement/dashboard"><i class="fas fa-briefcase"></i> Placement</a></li>
+      <li><a href="/placement/jobs"><i class="fas fa-search"></i> Browse Jobs</a></li>
+      <li><a href="/placement/applications"><i class="fas fa-file-alt"></i> My Applications</a></li>
+      <li><a href="/placement/resume"><i class="fas fa-file-pdf"></i> Resume</a></li>
+      <li><a href="/library"><i class="fas fa-book"></i> Library</a></li>
+      <li><a href="/attendance"><i class="fas fa-calendar-check"></i> Attendance</a></li>
+      <li><a href="/sschedule"><i class="fas fa-clock"></i> Schedule</a></li>
+      <li><a href="/sevents"><i class="fas fa-calendar"></i> Events</a></li>
+      <li><a href="/contact"><i class="fas fa-envelope"></i> Contact</a></li>
+      <li><a href="/profile"><i class="fas fa-user"></i> Profile</a></li>
+      <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <div class="header">
+      <h1>Placement Dashboard</h1>
+      <div class="user-info">
+        <span>Welcome, <%= user.fullName || user.email %></span>
+        <i class="fas fa-user-circle fa-2x"></i>
+      </div>
+    </div>
+
+    <% if (user.role === 'student') { %>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3><%= applications.length %></h3>
+          <p>Total Applications</p>
+        </div>
+        <div class="stat-card">
+          <h3><%= interviews.filter(i => i.status === 'Scheduled').length %></h3>
+          <p>Upcoming Interviews</p>
+        </div>
+        <div class="stat-card">
+          <h3><%= applications.filter(a => a.status === 'Selected').length %></h3>
+          <p>Selected</p>
+        </div>
+        <div class="stat-card">
+          <h3><%= jobs.length %></h3>
+          <p>New Opportunities</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Recent Job Opportunities</h2>
+        <div class="job-list">
+          <% jobs.forEach(job => { %>
+            <div class="job-item">
+              <div>
+                <h4><%= job.title %></h4>
+                <p><%= job.company.name %> • <%= job.location %> • <%= job.jobType %></p>
+                <p>Salary: <%= job.salary.min %> - <%= job.salary.max %> <%= job.salary.currency %>/year</p>
+              </div>
+              <a href="/placement/jobs/<%= job._id %>" class="btn btn-primary">View Details</a>
+            </div>
+          <% }) %>
+        </div>
+        <div style="text-align: center; margin-top: 1rem;">
+          <a href="/placement/jobs" class="btn btn-primary">View All Jobs</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>My Applications</h2>
+        <div class="job-list">
+          <% applications.slice(0, 5).forEach(application => { %>
+            <div class="job-item">
+              <div>
+                <h4><%= application.job.title %></h4>
+                <p><%= application.job.company.name %> • Applied on <%= new Date(application.appliedAt).toLocaleDateString() %></p>
+                <span class="status-badge status-<%= application.status.toLowerCase().replace(' ', '-') %>">
+                  <%= application.status %>
+                </span>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+        <div style="text-align: center; margin-top: 1rem;">
+          <a href="/placement/applications" class="btn btn-primary">View All Applications</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Upcoming Interviews</h2>
+        <div class="job-list">
+          <% interviews.forEach(interview => { %>
+            <div class="job-item">
+              <div>
+                <h4><%= interview.job.title %></h4>
+                <p><%= interview.company.name %> • <%= new Date(interview.date).toLocaleDateString() %> at <%= interview.time %></p>
+                <p>Mode: <%= interview.mode %> <%= interview.meetingLink ? '• ' + interview.meetingLink : '' %></p>
+              </div>
+              <span class="status-badge status-interview">Scheduled</span>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>AI Career Assistant</h2>
+        <div style="display: grid; gap: 1rem;">
+          <button onclick="analyzeResume()" class="btn btn-primary">
+            <i class="fas fa-robot"></i> Analyze My Resume
+          </button>
+          <button onclick="getJobRecommendations()" class="btn btn-primary">
+            <i class="fas fa-lightbulb"></i> Get Job Recommendations
+          </button>
+          <button onclick="openCareerChat()" class="btn btn-secondary">
+            <i class="fas fa-comments"></i> Career Guidance Chat
+          </button>
+        </div>
+        <div id="aiResults" style="margin-top: 1rem; display: none;">
+          <div id="aiContent" style="padding: 1rem; background: #f8fafc; border-radius: 0.5rem; border-left: 4px solid var(--accent);">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Notifications</h2>
+        <% notifications.forEach(notification => { %>
+          <div class="notification-item">
+            <h5><%= notification.title %></h5>
+            <p><%= notification.message %></p>
+            <small><%= new Date(notification.createdAt).toLocaleDateString() %></small>
+          </div>
+        <% }) %>
+      </div>
+    <% } else if (user.role === 'admin' || user.role === 'placement') { %>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3><%= totalJobs %></h3>
+          <p>Total Jobs Posted</p>
+        </div>
+        <div class="stat-card">
+          <h3><%= totalApplications %></h3>
+          <p>Total Applications</p>
+        </div>
+        <div class="stat-card">
+          <h3><%= totalStudents %></h3>
+          <p>Registered Students</p>
+        </div>
+        <div class="stat-card">
+          <h3><%= totalCompanies %></h3>
+          <p>Partner Companies</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Recent Applications</h2>
+        <div class="job-list">
+          <% recentApplications.forEach(application => { %>
+            <div class="job-item">
+              <div>
+                <h4><%= application.student.fullName || application.student.email %></h4>
+                <p>Applied for <%= application.job.title %> at <%= application.job.company.name %></p>
+                <p><%= new Date(application.appliedAt).toLocaleDateString() %></p>
+              </div>
+              <span class="status-badge status-<%= application.status.toLowerCase().replace(' ', '-') %>">
+                <%= application.status %>
+              </span>
+            </div>
+          <% }) %>
+        </div>
+        <div style="text-align: center; margin-top: 1rem;">
+          <a href="/placement/applications" class="btn btn-primary">Manage Applications</a>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 2rem;">
+        <a href="/placement/admin" class="btn btn-primary">Admin Dashboard</a>
+      </div>
+    <% } %>
+  </main>
+
+  <script src="/js/chatbot.js"></script>
+  <script>
+    async function analyzeResume() {
+      const aiResults = document.getElementById('aiResults');
+      const aiContent = document.getElementById('aiContent');
+      
+      aiResults.style.display = 'block';
+      aiContent.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing your resume...';
+      
+      try {
+        const response = await fetch('/placement/ai/analyze-resume', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          const analysis = data.analysis;
+          aiContent.innerHTML = `
+            <h4><i class="fas fa-chart-line"></i> Resume Analysis</h4>
+            <p><strong>Overall Strength:</strong> ${analysis.strength}/10</p>
+            <p><strong>Key Strengths:</strong> ${analysis.strengths.join(', ')}</p>
+            <p><strong>Areas for Improvement:</strong> ${analysis.improvements.join(', ')}</p>
+            <p><strong>Missing Skills:</strong> ${analysis.missingSkills.join(', ')}</p>
+            <p><strong>Recommendations:</strong></p>
+            <ul>${analysis.recommendations.map(rec => `<li>${rec}</li>`).join('')}</ul>
+          `;
+        } else {
+          aiContent.innerHTML = '<p style="color: var(--danger);">Error: ' + data.error + '</p>';
+        }
+      } catch (error) {
+        aiContent.innerHTML = '<p style="color: var(--danger);">Error analyzing resume. Please try again.</p>';
+      }
+    }
+    
+    async function getJobRecommendations() {
+      const aiResults = document.getElementById('aiResults');
+      const aiContent = document.getElementById('aiContent');
+      
+      aiResults.style.display = 'block';
+      aiContent.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finding personalized job recommendations...';
+      
+      try {
+        const response = await fetch('/placement/ai/job-recommendations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          const recommendations = data.recommendations;
+          let html = '<h4><i class="fas fa-lightbulb"></i> Personalized Job Recommendations</h4>';
+          
+          recommendations.forEach(rec => {
+            html += `
+              <div style="margin: 1rem 0; padding: 1rem; background: white; border-radius: 0.5rem; border: 1px solid var(--border);">
+                <h5>${rec.title} at ${rec.company}</h5>
+                <p><strong>Match Score:</strong> ${rec.matchScore}%</p>
+                <p><strong>Why it matches:</strong> ${rec.reasoning}</p>
+                <a href="/placement/jobs/${rec.jobId}" class="btn btn-primary" style="margin-top: 0.5rem;">View Job</a>
+              </div>
+            `;
+          });
+          
+          aiContent.innerHTML = html;
+        } else {
+          aiContent.innerHTML = '<p style="color: var(--danger);">Error: ' + data.error + '</p>';
+        }
+      } catch (error) {
+        aiContent.innerHTML = '<p style="color: var(--danger);">Error getting recommendations. Please try again.</p>';
+      }
+    }
+    
+    function openCareerChat() {
+      const aiResults = document.getElementById('aiResults');
+      const aiContent = document.getElementById('aiContent');
+      
+      aiResults.style.display = 'block';
+      aiContent.innerHTML = `
+        <h4><i class="fas fa-comments"></i> Career Guidance Chat</h4>
+        <div id="chatMessages" style="height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.5rem; margin-bottom: 1rem; background: white;">
+          <p style="color: var(--text-muted); font-style: italic;">Ask me anything about your career, skills, or job search!</p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <input type="text" id="careerQuestion" placeholder="Type your question here..." style="flex: 1; padding: 0.5rem; border: 1px solid var(--border); border-radius: 0.25rem;">
+          <button onclick="askCareerQuestion()" class="btn btn-primary">Send</button>
+        </div>
+      `;
+      
+      document.getElementById('careerQuestion').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          askCareerQuestion();
+        }
+      });
+    }
+    
+    async function askCareerQuestion() {
+      const questionInput = document.getElementById('careerQuestion');
+      const chatMessages = document.getElementById('chatMessages');
+      const question = questionInput.value.trim();
+      
+      if (!question) return;
+      
+      // Add user message
+      chatMessages.innerHTML += `<p><strong>You:</strong> ${question}</p>`;
+      questionInput.value = '';
+      
+      // Add typing indicator
+      chatMessages.innerHTML += `<p style="color: var(--text-muted); font-style: italic;">AI is thinking...</p>`;
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      
+      try {
+        const response = await fetch('/placement/ai/career-guidance', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ question })
+        });
+        
+        const data = await response.json();
+        
+        // Remove typing indicator
+        const messages = chatMessages.innerHTML.split('<p style="color: var(--text-muted); font-style: italic;">AI is thinking...</p>');
+        chatMessages.innerHTML = messages[0];
+        
+        if (data.success) {
+          chatMessages.innerHTML += `<p><strong>AI Advisor:</strong> ${data.advice}</p>`;
+        } else {
+          chatMessages.innerHTML += `<p style="color: var(--danger);"><strong>AI Advisor:</strong> Sorry, I encountered an error. Please try again.</p>`;
+        }
+      } catch (error) {
+        // Remove typing indicator
+        const messages = chatMessages.innerHTML.split('<p style="color: var(--text-muted); font-style: italic;">AI is thinking...</p>');
+        chatMessages.innerHTML = messages[0];
+        chatMessages.innerHTML += `<p style="color: var(--danger);"><strong>AI Advisor:</strong> Sorry, I'm having trouble connecting. Please try again.</p>`;
+      }
+      
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+  </script>
+</body>
+</html>

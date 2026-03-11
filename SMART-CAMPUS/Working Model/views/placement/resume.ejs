@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume Management — SmartCampus Placement</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sidebar-w: 250px;
+      --bg: #f0f4f8;
+      --card-bg: #fff;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+    }
+    .sidebar {
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--card-bg);
+      position: fixed;
+      left: 0;
+      top: 0;
+      box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+      padding-top: 1.25rem;
+    }
+    .sidebar .logo {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      padding: 0 1rem;
+    }
+    .sidebar .logo h2 { margin: 0; font-size: 1.35rem; color: var(--text); }
+    .sidebar .logo h2 span { color: var(--accent); }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar ul li {
+      padding: 0.75rem 1.25rem;
+      margin: 0 0.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .sidebar ul li:hover, .sidebar ul li.active {
+      background: var(--accent);
+      color: white;
+    }
+    .sidebar ul li a {
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .main {
+      margin-left: var(--sidebar-w);
+      padding: 2rem;
+    }
+    .header {
+      background: var(--card-bg);
+      padding: 1.5rem 2rem;
+      border-radius: 1rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 { margin: 0; font-size: 1.75rem; }
+    .header .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .resume-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      padding: 2rem;
+    }
+    .card h2 { margin: 0 0 1.5rem 0; font-size: 1.25rem; }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    .file-upload {
+      border: 2px dashed var(--border);
+      border-radius: 0.5rem;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .file-upload:hover {
+      border-color: var(--accent);
+    }
+    .file-upload input[type="file"] {
+      display: none;
+    }
+    .file-upload i {
+      font-size: 2rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    .skills-input {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      min-height: 50px;
+    }
+    .skill-tag {
+      background: #e0e7ff;
+      color: #3730a3;
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .skill-tag .remove {
+      cursor: pointer;
+      color: #6b7280;
+    }
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+    .btn-secondary {
+      background: var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+    .resume-preview {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .resume-preview h3 {
+      margin: 0 0 1rem 0;
+      color: var(--accent);
+    }
+    .resume-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .resume-info .file-name {
+      font-weight: 500;
+    }
+    .resume-info .file-size {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .resume-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .section-title {
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    .dynamic-section {
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .dynamic-section .form-group {
+      margin-bottom: 1rem;
+    }
+    .add-btn {
+      background: var(--success);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .remove-btn {
+      background: var(--danger);
+      color: white;
+      border: none;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    @media (max-width: 1024px) {
+      .resume-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo">
+      <h2>Smart<span>Campus</span></h2>
+    </div>
+    <ul>
+      <li><a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+      <li class="active"><a href="/placement/dashboard"><i class="fas fa-briefcase"></i> Placement</a></li>
+      <li><a href="/placement/jobs"><i class="fas fa-search"></i> Browse Jobs</a></li>
+      <li><a href="/placement/applications"><i class="fas fa-file-alt"></i> My Applications</a></li>
+      <li><a href="/placement/resume"><i class="fas fa-file-pdf"></i> Resume</a></li>
+      <li><a href="/library"><i class="fas fa-book"></i> Library</a></li>
+      <li><a href="/attendance"><i class="fas fa-calendar-check"></i> Attendance</a></li>
+      <li><a href="/sschedule"><i class="fas fa-clock"></i> Schedule</a></li>
+      <li><a href="/sevents"><i class="fas fa-calendar"></i> Events</a></li>
+      <li><a href="/contact"><i class="fas fa-envelope"></i> Contact</a></li>
+      <li><a href="/profile"><i class="fas fa-user"></i> Profile</a></li>
+      <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <div class="header">
+      <h1>Resume Management</h1>
+      <div class="user-info">
+        <span>Welcome, <%= user.fullName || user.email %></span>
+        <i class="fas fa-user-circle fa-2x"></i>
+      </div>
+    </div>
+
+    <div class="resume-container">
+      <div class="card">
+        <h2>Upload Resume</h2>
+        <% if (resume) { %>
+          <div class="resume-preview">
+            <h3>Current Resume</h3>
+            <div class="resume-info">
+              <div>
+                <div class="file-name"><%= resume.fileName %></div>
+                <div class="file-size">Uploaded on <%= new Date(resume.uploadedAt).toLocaleDateString() %></div>
+              </div>
+              <div class="resume-actions">
+                <a href="<%= resume.filePath %>" target="_blank" class="btn btn-secondary">
+                  <i class="fas fa-eye"></i> View
+                </a>
+              </div>
+            </div>
+          </div>
+        <% } %>
+        
+        <form method="POST" action="/placement/resume/upload" enctype="multipart/form-data" id="resumeForm">
+          <div class="form-group">
+            <label for="resumeFile">Resume File (PDF only)</label>
+            <div class="file-upload" onclick="document.getElementById('resumeFile').click()">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <p>Click to upload or drag and drop</p>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">PDF files only, max 5MB</p>
+              <input type="file" id="resumeFile" name="resume" accept=".pdf" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Skills</label>
+            <div class="skills-input" id="skillsContainer">
+              <input type="text" placeholder="Type a skill and press Enter" id="skillInput" style="border: none; outline: none; flex: 1; min-width: 100px;">
+            </div>
+            <input type="hidden" name="skills" id="skillsHidden">
+          </div>
+
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" name="phone" placeholder="+91 98765 43210" value="<%= resume ? resume.personalInfo.phone : '' %>">
+          </div>
+
+          <div class="form-group">
+            <label>Address</label>
+            <textarea name="address" placeholder="Your current address"><%= resume ? resume.personalInfo.address : '' %></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>LinkedIn Profile</label>
+            <input type="url" name="linkedin" placeholder="https://linkedin.com/in/yourprofile" value="<%= resume ? resume.personalInfo.linkedin : '' %>">
+          </div>
+
+          <div class="form-group">
+            <label>GitHub Profile</label>
+            <input type="url" name="github" placeholder="https://github.com/yourusername" value="<%= resume ? resume.personalInfo.github : '' %>">
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> <%= resume ? 'Update Resume' : 'Upload Resume' %>
+          </button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Additional Information</h2>
+        <form method="POST" action="/placement/resume/upload" enctype="multipart/form-data">
+          <input type="hidden" name="resume" value="<%= resume ? resume._id : '' %>">
+          
+          <div class="section-title">Education</div>
+          <div id="educationContainer">
+            <% if (resume && resume.education && resume.education.length > 0) { %>
+              <% resume.education.forEach((edu, index) => { %>
+                <div class="dynamic-section">
+                  <div class="form-group">
+                    <input type="text" name="education[<%= index %>][degree]" placeholder="Degree (e.g., B.Tech CSE)" value="<%= edu.degree %>" required>
+                  </div>
+                  <div class="form-group">
+                    <input type="text" name="education[<%= index %>][institution]" placeholder="Institution" value="<%= edu.institution %>" required>
+                  </div>
+                  <div class="form-group">
+                    <input type="number" name="education[<%= index %>][cgpa]" placeholder="CGPA" step="0.01" min="0" max="10" value="<%= edu.cgpa || '' %>">
+                  </div>
+                  <div class="form-group">
+                    <input type="number" name="education[<%= index %>][passoutYear]" placeholder="Passout Year" value="<%= edu.passoutYear || '' %>">
+                  </div>
+                  <button type="button" class="remove-btn" onclick="removeSection(this)">Remove</button>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div class="dynamic-section">
+                <div class="form-group">
+                  <input type="text" name="education[0][degree]" placeholder="Degree (e.g., B.Tech CSE)" required>
+                </div>
+                <div class="form-group">
+                  <input type="text" name="education[0][institution]" placeholder="Institution" required>
+                </div>
+                <div class="form-group">
+                  <input type="number" name="education[0][cgpa]" placeholder="CGPA" step="0.01" min="0" max="10">
+                </div>
+                <div class="form-group">
+                  <input type="number" name="education[0][passoutYear]" placeholder="Passout Year">
+                </div>
+                <button type="button" class="remove-btn" onclick="removeSection(this)">Remove</button>
+              </div>
+            <% } %>
+          </div>
+          <button type="button" class="add-btn" onclick="addEducation()">+ Add Education</button>
+
+          <div class="section-title" style="margin-top: 2rem;">Projects</div>
+          <div id="projectsContainer">
+            <% if (resume && resume.projects && resume.projects.length > 0) { %>
+              <% resume.projects.forEach((project, index) => { %>
+                <div class="dynamic-section">
+                  <div class="form-group">
+                    <input type="text" name="projects[<%= index %>][title]" placeholder="Project Title" value="<%= project.title %>" required>
+                  </div>
+                  <div class="form-group">
+                    <textarea name="projects[<%= index %>][description]" placeholder="Project Description" required><%= project.description %></textarea>
+                  </div>
+                  <div class="form-group">
+                    <input type="text" name="projects[<%= index %>][technologies]" placeholder="Technologies (comma separated)" value="<%= project.technologies ? project.technologies.join(', ') : '' %>">
+                  </div>
+                  <div class="form-group">
+                    <input type="text" name="projects[<%= index %>][duration]" placeholder="Duration (e.g., 3 months)" value="<%= project.duration || '' %>">
+                  </div>
+                  <button type="button" class="remove-btn" onclick="removeSection(this)">Remove</button>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div class="dynamic-section">
+                <div class="form-group">
+                  <input type="text" name="projects[0][title]" placeholder="Project Title" required>
+                </div>
+                <div class="form-group">
+                  <textarea name="projects[0][description]" placeholder="Project Description" required></textarea>
+                </div>
+                <div class="form-group">
+                  <input type="text" name="projects[0][technologies]" placeholder="Technologies (comma separated)">
+                </div>
+                <div class="form-group">
+                  <input type="text" name="projects[0][duration]" placeholder="Duration (e.g., 3 months)">
+                </div>
+                <button type="button" class="remove-btn" onclick="removeSection(this)">Remove</button>
+              </div>
+            <% } %>
+          </div>
+          <button type="button" class="add-btn" onclick="addProject()">+ Add Project</button>
+
+          <button type="submit" class="btn btn-success" style="margin-top: 2rem;">
+            <i class="fas fa-save"></i> Save All Information
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Store data in JSON script tag to avoid EJS parsing issues -->
+  <script id="resumeData" type="application/json">
+  {
+    "skills": <%= resume && resume.skills ? JSON.stringify(resume.skills) : '[]' %>,
+    "educationCount": <%= resume && resume.education ? resume.education.length : 1 %>,
+    "projectCount": <%= resume && resume.projects ? resume.projects.length : 1 %>
+  }
+  </script>
+
+  <script>
+    // Initialize data from JSON script tag (no EJS in JavaScript)
+    let skills = [];
+    let educationCount = 1;
+    let projectCount = 1;
+    
+    // Initialize data from JSON script
+    window.addEventListener('DOMContentLoaded', function() {
+      const dataScript = document.getElementById('resumeData');
+      if (dataScript) {
+        try {
+          const data = JSON.parse(dataScript.textContent);
+          skills = Array.isArray(data.skills) ? data.skills : [];
+          educationCount = parseInt(data.educationCount) || 1;
+          projectCount = parseInt(data.projectCount) || 1;
+          
+          // Initialize skill tags
+          skills.forEach(skill => {
+            if (typeof addSkillTag === 'function') {
+              addSkillTag(skill);
+            }
+          });
+        } catch (e) {
+          console.error('Error parsing resume data:', e);
+          skills = [];
+          educationCount = 1;
+          projectCount = 1;
+        }
+      }
+    });
+
+    document.getElementById('skillInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const skill = this.value.trim();
+        if (skill && !skills.includes(skill)) {
+          skills.push(skill);
+          addSkillTag(skill);
+          this.value = '';
+          updateSkillsHidden();
+        }
+      }
+    });
+
+    function addSkillTag(skill) {
+      const container = document.getElementById('skillsContainer');
+      const tag = document.createElement('span');
+      tag.className = 'skill-tag';
+      tag.innerHTML = `
+        ${skill}
+        <span class="remove" onclick="removeSkill('${skill}')">×</span>
+      `;
+      container.insertBefore(tag, document.getElementById('skillInput'));
+    }
+
+    function removeSkill(skill) {
+      skills = skills.filter(s => s !== skill);
+      updateSkillsHidden();
+      renderSkills();
+    }
+
+    function renderSkills() {
+      const container = document.getElementById('skillsContainer');
+      const input = document.getElementById('skillInput');
+      container.innerHTML = '';
+      skills.forEach(skill => addSkillTag(skill));
+      container.appendChild(input);
+    }
+
+    function updateSkillsHidden() {
+      document.getElementById('skillsHidden').value = skills.join(',');
+    }
+
+    function addEducation() {
+      const container = document.getElementById('educationContainer');
+      const section = document.createElement('div');
+      section.className = 'dynamic-section';
+      section.innerHTML = `
+        <div class="form-group">
+          <input type="text" name="education[${educationCount}][degree]" placeholder="Degree (e.g., B.Tech CSE)" required>
+        </div>
+        <div class="form-group">
+          <input type="text" name="education[${educationCount}][institution]" placeholder="Institution" required>
+        </div>
+        <div class="form-group">
+          <input type="number" name="education[${educationCount}][cgpa]" placeholder="CGPA" step="0.01" min="0" max="10">
+        </div>
+        <div class="form-group">
+          <input type="number" name="education[${educationCount}][passoutYear]" placeholder="Passout Year">
+        </div>
+        <button type="button" class="remove-btn" onclick="removeSection(this)">Remove</button>
+      `;
+      container.appendChild(section);
+      educationCount++;
+    }
+
+    function addProject() {
+      const container = document.getElementById('projectsContainer');
+      const section = document.createElement('div');
+      section.className = 'dynamic-section';
+      section.innerHTML = `
+        <div class="form-group">
+          <input type="text" name="projects[${projectCount}][title]" placeholder="Project Title" required>
+        </div>
+        <div class="form-group">
+          <textarea name="projects[${projectCount}][description]" placeholder="Project Description" required></textarea>
+        </div>
+        <div class="form-group">
+          <input type="text" name="projects[${projectCount}][technologies]" placeholder="Technologies (comma separated)">
+        </div>
+        <div class="form-group">
+          <input type="text" name="projects[${projectCount}][duration]" placeholder="Duration (e.g., 3 months)">
+        </div>
+        <button type="button" class="remove-btn" onclick="removeSection(this)">Remove</button>
+      `;
+      container.appendChild(section);
+      projectCount++;
+    }
+
+    function removeSection(button) {
+      button.parentElement.remove();
+    }
+
+    document.getElementById('resumeFile').addEventListener('change', function(e) {
+      const fileName = e.target.files[0]?.name || 'Click to upload or drag and drop';
+      const uploadDiv = document.querySelector('.file-upload p');
+      if (uploadDiv) {
+        uploadDiv.textContent = fileName;
+      }
+    });
+  </script>
+</body>
+</html>

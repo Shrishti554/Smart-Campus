@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Jobs — SmartCampus Placement</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sidebar-w: 250px;
+      --bg: #f0f4f8;
+      --card-bg: #fff;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+    }
+    .sidebar {
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--card-bg);
+      position: fixed;
+      left: 0;
+      top: 0;
+      box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+      padding-top: 1.25rem;
+    }
+    .sidebar .logo {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      padding: 0 1rem;
+    }
+    .sidebar .logo h2 { margin: 0; font-size: 1.35rem; color: var(--text); }
+    .sidebar .logo h2 span { color: var(--accent); }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar ul li {
+      padding: 0.75rem 1.25rem;
+      margin: 0 0.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .sidebar ul li:hover, .sidebar ul li.active {
+      background: var(--accent);
+      color: white;
+    }
+    .sidebar ul li a {
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .main {
+      margin-left: var(--sidebar-w);
+      padding: 2rem;
+    }
+    .header {
+      background: var(--card-bg);
+      padding: 1.5rem 2rem;
+      border-radius: 1rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 { margin: 0; font-size: 1.75rem; }
+    .header .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .filters {
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      margin-bottom: 2rem;
+    }
+    .filters h2 { margin: 0 0 1rem 0; font-size: 1.25rem; }
+    .filter-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .filter-group label {
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+    .filter-group input,
+    .filter-group select {
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      font-family: inherit;
+    }
+    .job-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+    .job-card {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .job-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    .job-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .job-header h3 { margin: 0 0 0.5rem 0; font-size: 1.25rem; }
+    .job-header .company { color: var(--accent); font-weight: 500; }
+    .job-header .location { color: var(--text-muted); font-size: 0.9rem; }
+    .job-details {
+      padding: 1.5rem;
+    }
+    .job-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .job-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .job-description {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .job-footer {
+      padding: 1rem 1.5rem;
+      background: #f8fafc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .salary {
+      font-weight: 600;
+      color: var(--success);
+    }
+    .deadline {
+      font-size: 0.8rem;
+      color: var(--danger);
+    }
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+    .btn-secondary {
+      background: var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+    .btn-applied {
+      background: var(--success);
+      color: white;
+    }
+    .no-jobs {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+    }
+    .no-jobs i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo">
+      <h2>Smart<span>Campus</span></h2>
+    </div>
+    <ul>
+      <li><a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+      <li class="active"><a href="/placement/dashboard"><i class="fas fa-briefcase"></i> Placement</a></li>
+      <li><a href="/placement/jobs"><i class="fas fa-search"></i> Browse Jobs</a></li>
+      <li><a href="/placement/applications"><i class="fas fa-file-alt"></i> My Applications</a></li>
+      <li><a href="/placement/resume"><i class="fas fa-file-pdf"></i> Resume</a></li>
+      <li><a href="/library"><i class="fas fa-book"></i> Library</a></li>
+      <li><a href="/attendance"><i class="fas fa-calendar-check"></i> Attendance</a></li>
+      <li><a href="/sschedule"><i class="fas fa-clock"></i> Schedule</a></li>
+      <li><a href="/sevents"><i class="fas fa-calendar"></i> Events</a></li>
+      <li><a href="/contact"><i class="fas fa-envelope"></i> Contact</a></li>
+      <li><a href="/profile"><i class="fas fa-user"></i> Profile</a></li>
+      <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <div class="header">
+      <h1>Browse Jobs</h1>
+      <div class="user-info">
+        <span>Welcome, <%= user.fullName || user.email %></span>
+        <i class="fas fa-user-circle fa-2x"></i>
+      </div>
+    </div>
+
+    <div class="filters">
+      <h2>Filter Jobs</h2>
+      <form method="GET" action="/placement/jobs">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label for="search">Search</label>
+            <input type="text" id="search" name="search" value="<%= filters.search %>" placeholder="Job title or keywords">
+          </div>
+          <div class="filter-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" value="<%= filters.location %>" placeholder="City or remote">
+          </div>
+          <div class="filter-group">
+            <label for="jobType">Job Type</label>
+            <select id="jobType" name="jobType">
+              <option value="">All Types</option>
+              <option value="Full-time" <%= filters.jobType === 'Full-time' ? 'selected' : '' %>>Full-time</option>
+              <option value="Part-time" <%= filters.jobType === 'Part-time' ? 'selected' : '' %>>Part-time</option>
+              <option value="Internship" <%= filters.jobType === 'Internship' ? 'selected' : '' %>>Internship</option>
+              <option value="Contract" <%= filters.jobType === 'Contract' ? 'selected' : '' %>>Contract</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="minSalary">Min Salary (₹/year)</label>
+            <input type="number" id="minSalary" name="minSalary" value="<%= filters.minSalary %>" placeholder="300000">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-filter"></i> Apply Filters
+        </button>
+        <a href="/placement/jobs" class="btn btn-secondary" style="margin-left: 1rem;">
+          <i class="fas fa-times"></i> Clear
+        </a>
+      </form>
+    </div>
+
+    <% if (jobs.length === 0) { %>
+      <div class="no-jobs">
+        <i class="fas fa-search"></i>
+        <h3>No jobs found</h3>
+        <p>Try adjusting your filters or check back later for new opportunities.</p>
+      </div>
+    <% } else { %>
+      <div class="job-grid">
+        <% jobs.forEach(job => { %>
+          <div class="job-card">
+            <div class="job-header">
+              <h3><%= job.title %></h3>
+              <div class="company"><%= job.company.name %></div>
+              <div class="location"><i class="fas fa-map-marker-alt"></i> <%= job.location %></div>
+            </div>
+            <div class="job-details">
+              <div class="job-meta">
+                <div class="job-meta-item">
+                  <i class="fas fa-briefcase"></i>
+                  <%= job.jobType %>
+                </div>
+                <div class="job-meta-item">
+                  <i class="fas fa-laptop"></i>
+                  <%= job.workMode %>
+                </div>
+                <div class="job-meta-item">
+                  <i class="fas fa-users"></i>
+                  <%= job.positionsAvailable %> positions
+                </div>
+              </div>
+              <div class="job-description">
+                <%= job.description %>
+              </div>
+            </div>
+            <div class="job-footer">
+              <div>
+                <div class="salary">₹<%= job.salary.min.toLocaleString() %> - <%= job.salary.max ? job.salary.max.toLocaleString() : 'N/A' %></div>
+                <div class="deadline">
+                  <i class="fas fa-clock"></i> 
+                  Apply by <%= new Date(job.applicationDeadline).toLocaleDateString() %>
+                </div>
+              </div>
+              <% if (user.role === 'student') { %>
+                <% if (appliedJobs.includes(job._id.toString())) { %>
+                  <button class="btn btn-applied" disabled>
+                    <i class="fas fa-check"></i> Applied
+                  </button>
+                <% } else { %>
+                  <a href="/placement/jobs/<%= job._id %>" class="btn btn-primary">
+                    View Details
+                  </a>
+                <% } %>
+              <% } else { %>
+                <a href="/placement/jobs/<%= job._id %>" class="btn btn-primary">
+                  View Details
+                </a>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+</body>
+</html>

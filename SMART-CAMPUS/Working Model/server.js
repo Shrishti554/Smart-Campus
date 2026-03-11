@@ -15,6 +15,12 @@ const model = genAI.getGenerativeModel({
 
 const User = require('./models/User');
 const Book = require('./models/Book'); 
+const Job = require('./models/Job');
+const Company = require('./models/Company');
+const Application = require('./models/Application');
+const Resume = require('./models/Resume');
+const Interview = require('./models/Interview');
+const Notification = require('./models/Notification'); 
 
 const app = express();
 
@@ -328,6 +334,17 @@ app.get("/contact", (req, res) => {
     res.render("contact", { user: req.session.user });
 
 });
+
+
+// ---------------- PLACEMENT PORTAL ----------------
+
+const placementRoutes = require('./routes/placement');
+const placementAdminRoutes = require('./routes/placementAdmin');
+const placementAIRoutes = require('./routes/placementAI');
+
+app.use('/placement', placementRoutes);
+app.use('/placement', placementAdminRoutes);
+app.use('/placement/ai', placementAIRoutes);
 
 
 // LOGOUT
